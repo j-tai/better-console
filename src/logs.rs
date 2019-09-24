@@ -1,13 +1,11 @@
-use crossbeam::Sender;
-use std::thread::JoinHandle;
 use std::io;
+use std::io::{BufRead, BufReader};
+use std::process::{Child, ChildStdout, Command, Stdio};
 use std::thread;
-use std::process::Command;
-use std::process::Stdio;
-use std::io::BufReader;
-use std::io::BufRead;
-use std::process::Child;
-use std::process::ChildStdout;
+use std::thread::JoinHandle;
+
+use crossbeam::Sender;
+
 use output::Line;
 
 pub fn spawn_tail() -> io::Result<Child> {

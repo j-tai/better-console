@@ -1,15 +1,16 @@
-use crossbeam::Sender;
-use flate2::read::GzDecoder;
-use regex::Regex;
 use std::fs;
 use std::fs::File;
 use std::io;
-use std::io::BufRead;
-use std::io::BufReader;
+use std::io::{BufRead, BufReader};
 use std::thread;
 use std::thread::JoinHandle;
-use output::Line;
+
 use crossbeam::Receiver;
+use crossbeam::Sender;
+use flate2::read::GzDecoder;
+use regex::Regex;
+
+use output::Line;
 
 pub fn start(input: Receiver<()>, output: Sender<Line>) -> JoinHandle<io::Result<()>> {
     thread::spawn(move || {
@@ -33,10 +34,14 @@ pub fn start(input: Receiver<()>, output: Sender<Line>) -> JoinHandle<io::Result
         let lines = lines?;
         for line in lines.into_iter().rev() {
             let log = Line::Log(line.replace('\t', "    "));
-            if send(&input, &output, log) { return Ok(()) }
+            if send(&input, &output, log) {
+                return Ok(());
+            }
         }
         let log = Line::Header("logs/latest.log".to_string());
-        if send(&input, &output, log) { return Ok(()) }
+        if send(&input, &output, log) {
+            return Ok(());
+        }
 
         'f: for filename in filenames.into_iter().rev() {
             let raw_file = File::open(&filename)?;
@@ -46,10 +51,14 @@ pub fn start(input: Receiver<()>, output: Sender<Line>) -> JoinHandle<io::Result
             let lines = lines?;
             for line in lines.into_iter().rev() {
                 let log = Line::Log(line.replace('\t', "    "));
-                if send(&input, &output, log) { return Ok(()) }
+                if send(&input, &output, log) {
+                    return Ok(());
+                }
             }
             let log = Line::Header(filename.to_string_lossy().into_owned());
-            if send(&input, &output, log) { return Ok(()) }
+            if send(&input, &output, log) {
+                return Ok(());
+            }
         }
 
         Ok(())

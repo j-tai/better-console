@@ -1,10 +1,9 @@
-use rustbox::Event;
-use crossbeam::Sender;
-use crossbeam::Receiver;
 use std::sync::Arc;
-use rustbox::RustBox;
 use std::thread;
 use std::thread::JoinHandle;
+
+use crossbeam::{Receiver, Sender};
+use rustbox::{Event, RustBox};
 
 pub fn start(rb: Arc<RustBox>, input: Receiver<()>, output: Sender<Event>) -> JoinHandle<()> {
     thread::spawn(move || {

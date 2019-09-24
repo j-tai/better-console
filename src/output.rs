@@ -1,15 +1,13 @@
-use config::Color;
-use config::Config;
-use crossbeam::Receiver;
-use crossbeam::Sender;
-use regex::Regex;
-use rustbox::Event;
-use rustbox::Key;
-use rustbox::RustBox;
 use std::borrow::Cow;
 use std::collections::VecDeque;
 use std::mem;
 use std::sync::Arc;
+
+use crossbeam::{Receiver, Sender};
+use regex::Regex;
+use rustbox::{Event, Key, RustBox};
+
+use config::{Color, Config};
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Line {
@@ -23,9 +21,16 @@ struct Text<'a> {
 }
 
 impl<'a> Text<'a> {
-    fn new(text: Cow<'a, str>, color: Color) -> Text { Text { text, color } }
+    fn new(text: Cow<'a, str>, color: Color) -> Text {
+        Text { text, color }
+    }
 
-    fn normal(text: Cow<'a, str>) -> Text { Text { text, color: Color::default() } }
+    fn normal(text: Cow<'a, str>) -> Text {
+        Text {
+            text,
+            color: Color::default(),
+        }
+    }
 }
 
 struct Console {
@@ -43,7 +48,12 @@ struct Console {
 }
 
 impl Console {
-    fn mainloop(&mut self, recv_h: Receiver<Line>, recv_l: Receiver<Line>, recv_i: Receiver<Event>) {
+    fn mainloop(
+        &mut self,
+        recv_h: Receiver<Line>,
+        recv_l: Receiver<Line>,
+        recv_i: Receiver<Event>,
+    ) {
         self.width = self.rb.width() as isize;
         self.height = self.rb.height() as isize;
 
@@ -122,7 +132,7 @@ impl Console {
                     self.draw_input();
                 }
                 _ => (),
-            }
+            },
             _ => (),
         }
         // Tell the input thread to keep going.
@@ -133,12 +143,18 @@ impl Console {
     fn max_scroll(&self) -> isize {
         let h = self.height - 2;
         let l = self.buffer.len() as isize;
-        if l < h { 0 } else { l - h }
+        if l < h {
+            0
+        } else {
+            l - h
+        }
     }
 
     /// Add `delta` to `self.scroll` and redraw the logs. Fetches more old logs if necessary.
     fn scroll(&mut self, recv_h: &Receiver<Line>, delta: isize) {
-        if delta == 0 { return; }
+        if delta == 0 {
+            return;
+        }
         if delta > 0 {
             let delta = delta;
             let max_scroll = self.max_scroll();
@@ -170,7 +186,9 @@ impl Console {
 
     /// Add `delta` to `self.hscroll` and redraw the logs if necessary.
     fn scroll_h(&mut self, delta: isize) {
-        if delta == 0 { return; }
+        if delta == 0 {
+            return;
+        }
         if delta > 0 {
             let delta = delta;
             self.hscroll += delta;
@@ -205,7 +223,8 @@ impl Console {
             }
             x = 0;
         }
-        self.rb.print(x as usize, y as usize, color.sty, color.fg, color.bg, s);
+        self.rb
+            .print(x as usize, y as usize, color.sty, color.fg, color.bg, s);
     }
 
     fn print_line(&self, mut x: isize, y: isize, texts: Vec<Text>) {
@@ -229,7 +248,12 @@ impl Console {
         }
         if right {
             let len = self.config.trun_right.chars().count() as isize;
-            self.print(self.width - len, y, &self.config.trun_right, self.config.colors.truncate);
+            self.print(
+                self.width - len,
+                y,
+                &self.config.trun_right,
+                self.config.colors.truncate,
+            );
         }
     }
 
@@ -261,20 +285,24 @@ impl Console {
 
     fn format_log<'a>(&self, log: &'a str) -> Vec<Text<'a>> {
         lazy_static! {
-            static ref REGEX: Regex = Regex::new(r"^\[(\d\d:\d\d:\d\d)] \[([^/]+)/([A-Z]+)]: (.*)$").unwrap();
+            static ref REGEX: Regex =
+                Regex::new(r"^\[(\d\d:\d\d:\d\d)] \[([^/]+)/([A-Z]+)]: (.*)$").unwrap();
         }
         if let Some(cap) = REGEX.captures(log) {
             vec![
                 Text::new(cap[1].to_string().into(), self.config.colors.time),
                 Text::normal(" ".into()),
-                Text::new(cap[3].to_string().into(), match &cap[3] {
-                    "INFO" => self.config.colors.info,
-                    "WARN" => self.config.colors.warn,
-                    "ERROR" => self.config.colors.error,
-                    "SEVERE" => self.config.colors.severe,
-                    "FATAL" => self.config.colors.fatal,
-                    _ => self.config.colors.other,
-                }),
+                Text::new(
+                    cap[3].to_string().into(),
+                    match &cap[3] {
+                        "INFO" => self.config.colors.info,
+                        "WARN" => self.config.colors.warn,
+                        "ERROR" => self.config.colors.error,
+                        "SEVERE" => self.config.colors.severe,
+                        "FATAL" => self.config.colors.fatal,
+                        _ => self.config.colors.other,
+                    },
+                ),
                 Text::normal(": ".into()),
                 Text::new(cap[4].to_string().into(), self.config.colors.text),
             ]
@@ -287,7 +315,10 @@ impl Console {
         let width = (self.width - 4) as usize;
         let output = format!(" > {:0$.*} ", width, self.input);
         self.print(0, self.height - 2, &output, self.config.colors.prompt);
-        self.rb.set_cursor(self.input.chars().count() as isize + 3, self.height as isize - 2)
+        self.rb.set_cursor(
+            self.input.chars().count() as isize + 3,
+            self.height as isize - 2,
+        )
     }
 
     fn draw_status(&mut self) {
@@ -297,8 +328,15 @@ impl Console {
     }
 }
 
-pub fn run(config: Arc<Config>, rustbox: Arc<RustBox>, recv_h: Receiver<Line>, recv_l: Receiver<Line>,
-           recv_i: Receiver<Event>, send_c: Sender<String>, send_i: Sender<()>) {
+pub fn run(
+    config: Arc<Config>,
+    rustbox: Arc<RustBox>,
+    recv_h: Receiver<Line>,
+    recv_l: Receiver<Line>,
+    recv_i: Receiver<Event>,
+    send_c: Sender<String>,
+    send_i: Sender<()>,
+) {
     Console {
         config,
         buffer: VecDeque::new(),
@@ -311,5 +349,6 @@ pub fn run(config: Arc<Config>, rustbox: Arc<RustBox>, recv_h: Receiver<Line>, r
         rb: rustbox,
         send_c,
         send_i,
-    }.mainloop(recv_h, recv_l, recv_i);
+    }
+    .mainloop(recv_h, recv_l, recv_i);
 }

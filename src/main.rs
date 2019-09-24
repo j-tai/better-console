@@ -10,16 +10,15 @@ extern crate serde;
 extern crate serde_derive;
 extern crate toml;
 
-use config::Config;
-use crossbeam::channel;
-use rustbox::InitOptions;
-use rustbox::OutputMode;
-use rustbox::RustBox;
 use std::fs::File;
-use std::io::ErrorKind;
-use std::io::Read;
+use std::io::{ErrorKind, Read};
 use std::process;
 use std::sync::Arc;
+
+use crossbeam::channel;
+use rustbox::{InitOptions, OutputMode, RustBox};
+
+use config::Config;
 
 mod command;
 mod config;
@@ -55,7 +54,8 @@ fn main() {
         buffer_stderr: false,
         output_mode: OutputMode::EightBit,
         ..Default::default()
-    }).unwrap_or_else(|e| {
+    })
+    .unwrap_or_else(|e| {
         eprintln!("failed to init terminal: {}", e);
         process::exit(2);
     });
