@@ -1,15 +1,10 @@
-use rustbox::Color as RbColor;
-use rustbox::RB_BOLD;
-use rustbox::RB_NORMAL;
-use rustbox::RB_REVERSE;
-use rustbox::RB_UNDERLINE;
-use rustbox::Style;
-use serde::de;
-use serde::de::Visitor;
-use serde::Deserialize;
-use serde::Deserializer;
 use std::fmt;
 use std::fmt::Formatter;
+
+use rustbox::{Color as RbColor, Style, RB_BOLD, RB_NORMAL, RB_REVERSE, RB_UNDERLINE};
+use serde::de;
+use serde::de::Visitor;
+use serde::{Deserialize, Deserializer};
 
 #[derive(Clone, Debug, Deserialize)]
 #[serde(default)]
@@ -28,7 +23,8 @@ impl Default for Config {
             colors: Colors::default(),
             trun_left: "<".to_string(),
             trun_right: ">".to_string(),
-            default_status: "ctrl-Q = quit; arrows/PgUp/PgDn/End = scroll; type to enter command".to_string(),
+            default_status: "ctrl-Q = quit; arrows/PgUp/PgDn/End = scroll; type to enter command"
+                .to_string(),
             vertical_move: 1,
             horizontal_move: 16,
         }
@@ -82,7 +78,11 @@ pub struct Color {
 
 impl Color {
     pub fn new(fg: u16, bg: u16, sty: Style) -> Color {
-        Color { fg: RbColor::Byte(fg), bg: RbColor::Byte(bg), sty }
+        Color {
+            fg: RbColor::Byte(fg),
+            bg: RbColor::Byte(bg),
+            sty,
+        }
     }
 }
 
@@ -108,28 +108,50 @@ impl<'de> Deserialize<'de> for Color {
                 let fg = if let Some(text) = parts.next() {
                     match text.parse::<u16>() {
                         Ok(i) => RbColor::Byte(i),
-                        Err(_) => return Err(E::custom(format!("invalid fg color or out of range: '{}'", text))),
+                        Err(_) => {
+                            return Err(E::custom(format!(
+                                "invalid fg color or out of range: '{}'",
+                                text
+                            )))
+                        }
                     }
-                } else { RbColor::Byte(0) }; // Byte(0) = default
+                } else {
+                    RbColor::Byte(0)
+                }; // Byte(0) = default
                 let bg = if let Some(text) = parts.next() {
                     match text.parse::<u16>() {
                         Ok(i) => RbColor::Byte(i),
-                        Err(_) => return Err(E::custom(format!("invalid bg color or out of range: '{}'", text))),
+                        Err(_) => {
+                            return Err(E::custom(format!(
+                                "invalid bg color or out of range: '{}'",
+                                text
+                            )))
+                        }
                     }
-                } else { RbColor::Byte(0) }; // Byte(0) = default
+                } else {
+                    RbColor::Byte(0)
+                }; // Byte(0) = default
                 let sty = if let Some(text) = parts.next() {
                     let text: &str = text.trim();
                     let mut sty = RB_NORMAL;
                     for ch in text.chars() {
-                        sty = sty | match ch {
-                            'b' => RB_BOLD,
-                            'u' => RB_UNDERLINE,
-                            'r' => RB_REVERSE,
-                            _ => return Err(E::custom(format!("invalid style character: '{}'", ch))),
-                        }
+                        sty = sty
+                            | match ch {
+                                'b' => RB_BOLD,
+                                'u' => RB_UNDERLINE,
+                                'r' => RB_REVERSE,
+                                _ => {
+                                    return Err(E::custom(format!(
+                                        "invalid style character: '{}'",
+                                        ch
+                                    )))
+                                }
+                            }
                     }
                     sty
-                } else { RB_NORMAL };
+                } else {
+                    RB_NORMAL
+                };
                 Ok(Color { fg, bg, sty })
             }
         }

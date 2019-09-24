@@ -1,9 +1,10 @@
-use crossbeam::Receiver;
-use std::thread::JoinHandle;
-use std::io;
-use std::thread;
 use std::fs::File;
+use std::io;
 use std::io::Write;
+use std::thread;
+use std::thread::JoinHandle;
+
+use crossbeam::Receiver;
 
 pub fn start(input: Receiver<String>) -> JoinHandle<io::Result<()>> {
     thread::spawn(move || {
