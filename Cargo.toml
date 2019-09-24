@@ -2,6 +2,7 @@
 name = "better-console"
 version = "0.1.0"
 authors = ["Jasmine Tai <jtai@jtai.ca>"]
+edition = "2018"
 
 [dependencies]
 crossbeam = "0.4.1"
@@ -9,6 +10,5 @@ flate2 = "1.0.3"
 lazy_static = "1.1.0"
 regex = "1.0.5"
 rustbox = "0.11.0"
-serde = "1.0.80"
-serde_derive = "1.0.80"
+serde = { version = "1.0.80", features = ["derive"] }
 toml = "0.4.8"

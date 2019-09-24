@@ -3,11 +3,12 @@ use std::collections::VecDeque;
 use std::mem;
 use std::sync::Arc;
 
-use crossbeam::{Receiver, Sender};
+use crossbeam::{select, Receiver, Sender};
+use lazy_static::lazy_static;
 use regex::Regex;
 use rustbox::{Event, Key, RustBox};
 
-use config::{Color, Config};
+use crate::config::{Color, Config};
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Line {
