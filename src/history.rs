@@ -5,7 +5,8 @@ use std::io::{BufRead, BufReader};
 use std::thread;
 use std::thread::JoinHandle;
 
-use crossbeam::{select, Receiver, Sender};
+use crossbeam::channel::select;
+use crossbeam::{Receiver, Sender};
 use flate2::read::GzDecoder;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -68,8 +69,8 @@ pub fn start(input: Receiver<()>, output: Sender<Line>) -> JoinHandle<io::Result
 fn send(input: &Receiver<()>, output: &Sender<Line>, line: Line) -> bool {
     loop {
         select! {
-            recv(input, msg) => if msg.is_none() { return true },
-            send(output, line) => return false,
+            recv(input) -> msg => if msg.is_err() { return true },
+            send(output, line) -> _ => return false,
         }
     }
 }
