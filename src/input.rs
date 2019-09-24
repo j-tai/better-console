@@ -10,9 +10,9 @@ pub fn start(rb: Arc<RustBox>, input: Receiver<()>, output: Sender<Event>) -> Jo
         let rb = rb;
         loop {
             let event = rb.poll_event(false);
-            output.send(event.unwrap());
+            output.send(event.unwrap()).unwrap();
 
-            if input.recv().is_none() {
+            if input.recv().is_err() {
                 break;
             }
         }

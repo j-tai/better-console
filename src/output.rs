@@ -3,7 +3,8 @@ use std::collections::VecDeque;
 use std::mem;
 use std::sync::Arc;
 
-use crossbeam::{select, Receiver, Sender};
+use crossbeam::channel::select;
+use crossbeam::{Receiver, Sender};
 use lazy_static::lazy_static;
 use regex::Regex;
 use rustbox::{Event, Key, RustBox};
@@ -64,14 +65,14 @@ impl Console {
         while !self.exit {
             self.rb.present();
             select! {
-                recv(recv_l, log) => {
+                recv(recv_l) -> log => {
                     if self.scroll == self.max_scroll() {
                         self.scroll += 1;
                     }
                     self.buffer.push_back(log.unwrap());
                     self.draw_logs();
                 }
-                recv(recv_i, event) => {
+                recv(recv_i) -> event => {
                     self.process_event(&recv_h, event.unwrap());
                 }
             }
@@ -82,14 +83,14 @@ impl Console {
         // Collect enough logs
         'c: while (self.buffer.len() as isize) < self.height - 2 {
             select! {
-                recv(recv_h, log) => {
-                    if let Some(log) = log {
+                recv(recv_h) -> log => {
+                    if let Ok(log) = log {
                         self.buffer.push_front(log);
                     } else {
                         return;
                     }
                 }
-                recv(recv_l, log) => {
+                recv(recv_l) -> log => {
                     self.buffer.push_back(log.unwrap());
                 }
             }
@@ -129,7 +130,7 @@ impl Console {
                 Key::Enter => {
                     let mut command = String::new();
                     mem::swap(&mut command, &mut self.input);
-                    self.send_c.send(command);
+                    self.send_c.send(command).unwrap();
                     self.draw_input();
                 }
                 _ => (),
@@ -137,7 +138,7 @@ impl Console {
             _ => (),
         }
         // Tell the input thread to keep going.
-        self.send_i.send(());
+        self.send_i.send(()).unwrap();
     }
 
     /// Get the maximum value for `scroll`.
@@ -170,7 +171,7 @@ impl Console {
                 let to_fetch = delta - self.scroll;
                 for _ in 0..to_fetch {
                     let log = recv_h.recv();
-                    if let Some(log) = log {
+                    if let Ok(log) = log {
                         self.buffer.push_front(log);
                     } else {
                         // No more logs

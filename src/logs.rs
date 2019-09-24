@@ -23,7 +23,7 @@ pub fn start(stdout: ChildStdout, output: Sender<Line>) -> JoinHandle<io::Result
         let stdout = BufReader::new(stdout);
 
         for line in stdout.lines() {
-            output.send(Line::Log(line?.replace('\t', "    ")));
+            output.send(Line::Log(line?.replace('\t', "    "))).unwrap();
         }
 
         Ok(())
