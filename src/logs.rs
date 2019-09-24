@@ -6,7 +6,7 @@ use std::thread::JoinHandle;
 
 use crossbeam::Sender;
 
-use output::Line;
+use crate::output::Line;
 
 pub fn spawn_tail() -> io::Result<Child> {
     let mut cmd = Command::new("tail");

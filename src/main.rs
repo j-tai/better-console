@@ -1,15 +1,3 @@
-#[macro_use]
-extern crate crossbeam;
-extern crate flate2;
-#[macro_use]
-extern crate lazy_static;
-extern crate regex;
-extern crate rustbox;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-extern crate toml;
-
 use std::fs::File;
 use std::io::{ErrorKind, Read};
 use std::process;
@@ -18,7 +6,7 @@ use std::sync::Arc;
 use crossbeam::channel;
 use rustbox::{InitOptions, OutputMode, RustBox};
 
-use config::Config;
+use crate::config::Config;
 
 mod command;
 mod config;

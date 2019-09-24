@@ -5,12 +5,12 @@ use std::io::{BufRead, BufReader};
 use std::thread;
 use std::thread::JoinHandle;
 
-use crossbeam::Receiver;
-use crossbeam::Sender;
+use crossbeam::{select, Receiver, Sender};
 use flate2::read::GzDecoder;
+use lazy_static::lazy_static;
 use regex::Regex;
 
-use output::Line;
+use crate::output::Line;
 
 pub fn start(input: Receiver<()>, output: Sender<Line>) -> JoinHandle<io::Result<()>> {
     thread::spawn(move || {
