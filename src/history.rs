@@ -44,7 +44,7 @@ pub fn start(input: Receiver<()>, output: Sender<Line>) -> JoinHandle<io::Result
             return Ok(());
         }
 
-        'f: for filename in filenames.into_iter().rev() {
+        for filename in filenames.into_iter().rev() {
             let raw_file = File::open(&filename)?;
             let decoder = GzDecoder::new(raw_file);
             let reader = BufReader::new(decoder);
