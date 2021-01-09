@@ -3,8 +3,7 @@ use std::collections::VecDeque;
 use std::mem;
 use std::sync::Arc;
 
-use crossbeam::channel::select;
-use crossbeam::{Receiver, Sender};
+use crossbeam::channel::{Receiver, select, Sender};
 use lazy_static::lazy_static;
 use regex::Regex;
 use rustbox::{Event, Key, RustBox};
