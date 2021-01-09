@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::thread;
 use std::thread::JoinHandle;
 
-use crossbeam::{Receiver, Sender};
+use crossbeam::channel::{Receiver, Sender};
 use rustbox::{Event, RustBox};
 
 pub fn start(rb: Arc<RustBox>, input: Receiver<()>, output: Sender<Event>) -> JoinHandle<()> {

@@ -4,7 +4,7 @@ use std::io::Write;
 use std::thread;
 use std::thread::JoinHandle;
 
-use crossbeam::Receiver;
+use crossbeam::channel::Receiver;
 
 pub fn start(input: Receiver<String>) -> JoinHandle<io::Result<()>> {
     thread::spawn(move || {

@@ -4,7 +4,7 @@ use std::process::{Child, ChildStdout, Command, Stdio};
 use std::thread;
 use std::thread::JoinHandle;
 
-use crossbeam::Sender;
+use crossbeam::channel::Sender;
 
 use crate::output::Line;
 

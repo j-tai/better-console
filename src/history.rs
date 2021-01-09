@@ -5,8 +5,7 @@ use std::io::{BufRead, BufReader};
 use std::thread;
 use std::thread::JoinHandle;
 
-use crossbeam::channel::select;
-use crossbeam::{Receiver, Sender};
+use crossbeam::channel::{Receiver, select, Sender};
 use flate2::read::GzDecoder;
 use lazy_static::lazy_static;
 use regex::Regex;
