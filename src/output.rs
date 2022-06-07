@@ -80,7 +80,7 @@ impl Console {
 
     fn collect_logs(&mut self, recv_h: &Receiver<Line>, recv_l: &Receiver<Line>) {
         // Collect enough logs
-        'c: while (self.buffer.len() as isize) < self.height - 2 {
+        while (self.buffer.len() as isize) < self.height - 2 {
             select! {
                 recv(recv_h) -> log => {
                     if let Ok(log) = log {
