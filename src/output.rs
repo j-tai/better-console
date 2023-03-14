@@ -3,7 +3,7 @@ use std::collections::VecDeque;
 use std::mem;
 use std::sync::Arc;
 
-use crossbeam::channel::{Receiver, select, Sender};
+use crossbeam::channel::{select, Receiver, Sender};
 use lazy_static::lazy_static;
 use regex::Regex;
 use rustbox::{Event, Key, RustBox};
@@ -287,7 +287,8 @@ impl Console {
     fn format_log<'a>(&self, log: &'a str) -> Vec<Text<'a>> {
         lazy_static! {
             static ref REGEX: Regex =
-                Regex::new(r"^\[(\d\d:\d\d:\d\d)] \[([^/]+)/([A-Z]+)]: (.*)$").unwrap();
+                Regex::new(r"^\[(\d\d:\d\d:\d\d)] \[([^]/]+)/([A-Z]+)](?: \[[^]]*])*: (.*)$")
+                    .unwrap();
         }
         if let Some(cap) = REGEX.captures(log) {
             vec![
